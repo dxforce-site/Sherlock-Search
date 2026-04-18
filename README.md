@@ -1,4 +1,4 @@
-# Sherlock Search (ver 1.0.0)
+# Sherlock Search
 
 **Sherlock Search** は、Salesforce 用のパワフルな **「ノーコード・検索＆アクション・プラットフォーム」** です。管理者による視覚的な設定だけで、高度な検索パネルとアクション可能な結果リストを自在に構築できます。
 
@@ -12,17 +12,15 @@
 - **CSV エクスポート**: 出力件数の制限、ファイル名のカスタマイズ、文字化けを防ぐ BOM 付き出力に対応。
 - **お気に入り機能**: 検索条件を保存し、次回からワンクリックで呼び出し可能。
 
-## 📖 詳細マニュアル
+## 📖 詳細マニュアル・インストール方法
 
-使い方の詳細、管理者設定ガイド、トラブルシューティングについては、以下の公式オンラインマニュアルをご確認ください。
+最新バージョンのインストール URL、使い方の詳細、管理者設定ガイド、トラブルシューティングについては、以下の公式オンラインマニュアルをご確認ください。
 
 👉 **[Sherlock Search 完全操作マニュアル](https://dxforce.site/development/sherlock-search-full-manual-guide/)**
 
 ## 🛠 インストールとセットアップ
 
-1. **パッケージのインストール**: 以下のリンクから最新バージョン（v1.0.0）をインストールしてください。
-   - **本番環境 / Developer Edition**: [インストールはこちら](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgK000000CBpJQAW)
-   - **Sandbox 環境**: [インストールはこちら](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgK000000CBpJQAW)
+1. **パッケージのインストール**: 上記の「完全操作マニュアル」内にある最新バージョンのインストールリンクから組織にインストールします。
 2. **権限セットの割り当て**:
    - `Sherlock Search Admin`: 管理者（Sherlock Studio の利用、設定の保存）
    - `Sherlock Search User`: 一般利用者（検索パネルの利用、エクスポート、フロー実行）

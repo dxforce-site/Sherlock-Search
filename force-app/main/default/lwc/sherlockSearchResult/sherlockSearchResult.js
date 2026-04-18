@@ -6,7 +6,6 @@ import { NavigationMixin } from 'lightning/navigation';
 import { showToast } from 'c/sherlockToastUtils';
 
 import updateRecords from '@salesforce/apex/SherlockSearchController.updateRecords';
-import deleteRecord from '@salesforce/apex/SherlockSearchController.deleteRecord';
 import executeSearch from '@salesforce/apex/SherlockSearchController.executeSearch';
 import getChildRecords from '@salesforce/apex/SherlockSearchController.getChildRecords';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
@@ -371,8 +370,7 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
 
         // Add Row Actions
         const rowActions = [
-            { label: '編集', name: 'edit' },
-            { label: '削除', name: 'delete' }
+            { label: '編集', name: 'edit' }
         ];
 
         enrichedColumns.push({
@@ -425,8 +423,7 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
         
         // Row actions
         const rowActions = [
-            { label: '編集', name: 'edit' },
-            { label: '削除', name: 'delete' }
+            { label: '編集', name: 'edit' }
         ];
 
         childCols.push({
@@ -612,29 +609,7 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
         });
     }
 
-    async handleDelete(recordId) {
-        try {
-            await deleteRecord({ recordId: recordId });
-            showToast(this, '成功', 'レコードを削除しました。', 'success');
-
-            this.requestRefresh();
-        } catch (error) {
-            showToast(this, 'エラー', '削除に失敗しました: ' + (error?.body?.message || error.message), 'error');
-
-        }
-    }
-    
-    requestRefresh() {
-        const payload = {
-            context: {
-                instanceId: this.instanceId,
-                type: 'FETCH_REFRESH'
-            }
-        };
-        publish(this.messageContext, SHERLOCK_SEARCH_CHANNEL, payload);
-    }
-
-    handleExportClick() {
+    async handleExportClick() {
         this.showExportModal = true;
     }
 
