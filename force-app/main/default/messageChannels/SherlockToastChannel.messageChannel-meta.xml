@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Message channel for broadcasting toast notifications especially for LWR sites.</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <description>The title of the toast</description>
+        <fieldName>title</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>The message to display</description>
+        <fieldName>message</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>The variant: info, success, warning, error</description>
+        <fieldName>variant</fieldName>
+    </lightningMessageFields>
+    <masterLabel>SherlockToastChannel</masterLabel>
+</LightningMessageChannel>

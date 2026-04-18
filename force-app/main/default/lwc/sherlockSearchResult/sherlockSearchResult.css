@@ -1,0 +1,70 @@
+.datatable-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Edge shadow to indicate more content on the right */
+.scroll-shadow-right {
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(225, 225, 225, 0.8), transparent);
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+    border-radius: var(--_slds-c-datatable-radius-border);
+}
+
+/* Floating indicator badge */
+.scroll-hint-badge {
+    position: absolute;
+    bottom: 45%;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgb(50 50 50 / 70%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 2rem;
+    color: white;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+    pointer-events: none;
+    animation: bounceRight 2s infinite ease-in-out;
+    opacity: 1;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-hint-badge.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(8px); }
+}
+
+/* Saving Overlay */
+.saving-overlay {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 110;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--_slds-c-datatable-radius-border);
+}
+
+.scroll-icon {
+    --slds-c-icon-color-foreground: white;
+    margin-left: 8px;
+}

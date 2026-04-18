@@ -1,0 +1,180 @@
+<template>
+    <lightning-card title={resultsTitle} icon-name="standard:dataset">
+        
+        <!-- Header Actions -->
+        <div slot="actions">
+            <!-- 1. Mobile View: Show only Export button if available -->
+            <template lwc:if={isMobile}>
+                <template lwc:if={isViewingChild}>
+                    <!-- No actions in header for mobile child view -->
+                </template>
+                <template lwc:else>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                        <template lwc:if={showExportButton}>
+                            <lightning-button-icon
+                                icon-name="utility:download"
+                                alternative-text="CSV出力"
+                                title="CSV出力"
+                                onclick={handleExportClick}
+                                variant="border-filled">
+                            </lightning-button-icon>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+            <!-- 2. Desktop View: Original complex logic with Toggle buttons -->
+            <template lwc:else>
+                <template lwc:if={isViewingChild}>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                        <lightning-button-icon 
+                            icon-name={toggleIconName} 
+                            alternative-text={toggleIconTitle} 
+                            title={toggleIconTitle}
+                            onclick={handleToggleView}>
+                        </lightning-button-icon>
+                    </div>
+                </template>
+                <template lwc:elseif={hasData}>
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                        <template lwc:if={showBulkActionButton}>
+                            <lightning-button 
+                                label={bulkFlowButtonLabel}
+                                icon-name={bulkFlowIcon}
+                                onclick={handleRunBulkFlow}
+                                disabled={isBulkActionDisabled}
+                                variant="brand"
+                                class="slds-var-m-right_small">
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={showExportButton}>
+                            <lightning-button-icon
+                                icon-name="utility:download"
+                                alternative-text="CSV出力"
+                                title="CSV出力"
+                                onclick={handleExportClick}
+                                variant="border-filled"
+                                class="slds-var-m-right_x-small">
+                            </lightning-button-icon>
+                        </template>
+                        <lightning-button-icon 
+                            icon-name={toggleIconName} 
+                            alternative-text={toggleIconTitle} 
+                            title={toggleIconTitle}
+                            onclick={handleToggleView}>
+                        </lightning-button-icon>
+                    </div>
+                </template>
+            </template>
+        </div>
+
+        <div class="slds-var-p-around_medium" style="position: relative; min-height: 200px;">
+            <template lwc:if={isViewingChild}>
+                <!-- Child List View Top Panel -->
+                <div class="slds-var-m-bottom_medium slds-grid slds-grid_vertical-align-center">
+                    <lightning-button label="＜ メインリストへ戻る" variant="base" onclick={handleBackToMain} class="slds-text-heading_small slds-var-m-right_medium"></lightning-button>
+                </div>
+
+                <!-- Parent Fields Highlight Panel -->
+                <template lwc:if={childParentFields.length}>
+                    <div class="slds-var-m-top_x-small slds-var-m-bottom_xx-small slds-text-title_caps slds-text-color_weak slds-var-p-horizontal_x-small">{parentHighlightLabel}</div>
+                    <div class="slds-grid slds-wrap slds-var-m-bottom_small slds-box slds-box_xx-small slds-theme_default">
+                        <template for:each={parentHighlights} for:item="highlight">
+                            <div key={highlight.label} class="slds-col slds-size_1-of-2 slds-medium-size_1-of-5 slds-var-p-around_x-small">
+                                <div class="slds-text-title slds-text-color_weak slds-truncate" title={highlight.label}>{highlight.label}</div>
+                                <div class="slds-text-body_regular slds-truncate" title={highlight.value}>{highlight.value}</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template lwc:if={isFetchingChild}>
+                    <div style="height: 200px; position:relative;">
+                        <lightning-spinner alternative-text="読み込み中" size="medium"></lightning-spinner>
+                    </div>
+                </template>
+                <template lwc:elseif={hasChildData}>
+                    <div class="slds-var-m-top_medium slds-var-m-bottom_xx-small slds-text-title_caps slds-text-color_weak slds-var-p-horizontal_x-small">{childListLabel}</div>
+                    <!-- Child Data Table / Tile -->
+                    <c-sherlock-search-result-table 
+                        data={flattenedChildData} 
+                        columns={childColumns} 
+                        is-tile-view={isTileView} 
+                        onrowaction={handleRowAction} 
+                        ontileaction={handleTileAction} 
+                        onrecordnavigate={handleRecordNavigate} 
+                        onhideindicator={hideChildScrollIndicator}> 
+                    </c-sherlock-search-result-table>
+                </template>
+                <template lwc:else>
+                    <div class="slds-illustration slds-illustration_small slds-var-m-top_large" aria-hidden="true">
+                        <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                        <div class="slds-text-longform slds-var-m-top_medium">
+                            <h3 class="slds-text-heading_medium">レコードが見つかりません</h3>
+                            <p class="slds-text-body_regular">関連する子レコードは存在しません。</p>
+                        </div>
+                    </div>
+                </template>
+            </template>
+            <template lwc:elseif={hasData}>
+                
+                <!-- Tile View -->
+                <c-sherlock-search-result-table 
+                    data={flattenedData} 
+                    columns={columns} 
+                    is-tile-view={isTileView} 
+                    is-loading-more={isLoadingMore} 
+                    enable-infinite-loading={enableInfiniteLoading} 
+                    draft-values={draftValues} 
+                    show-scroll-indicator={showScrollIndicator} 
+                    show-drilldown={childObjectApiName} 
+                    onrowselection={handleRowSelection} 
+                    onrowaction={handleRowAction} 
+                    onloadmore={handleLoadMore} 
+                    onrecordsave={handleSave} 
+                    ontileaction={handleTileAction} 
+                    ontiledrilldown={handleTileDrilldown} 
+                    onrecordnavigate={handleRecordNavigate} 
+                    onhideindicator={hideScrollIndicator}> 
+                </c-sherlock-search-result-table>
+            </template>
+            
+            <template lwc:else>
+                <!-- Empty State Component using illustration -->
+                <div class="slds-illustration slds-illustration_small slds-var-m-top_large" aria-hidden="true">
+                    <img src="/img/chatter/OpenRoad.svg" class="slds-illustration__svg" alt=""/>
+                    <div class="slds-text-longform slds-var-m-top_medium">
+                        <h3 class="slds-text-heading_medium">結果が見つかりませんでした</h3>
+                        <p class="slds-text-body_regular">検索パネルに条件を入力して検索ボタンを押してください。</p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Saving Overlay Spinner -->
+        <template lwc:if={isSaving}>
+            <div class="saving-overlay slds-is-absolute">
+                <lightning-spinner alternative-text="保存中..." size="medium" variant="brand"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Flow Execution Modal (Extracted) -->
+        <c-sherlock-flow-modal
+            is-open={showFlowModal}
+            flow-api-name={bulkFlowApiName}
+            flow-input-variables={flowInputVariables}
+            flow-button-label={bulkFlowButtonLabel}
+            onclose={closeFlowModal}
+            onstatuschange={handleFlowStatusChange}>
+        </c-sherlock-flow-modal>
+
+        <!-- Export Options Modal (Extracted) -->
+        <c-sherlock-export-modal
+            is-open={showExportModal}
+            is-exporting={isExporting}
+            export-options={exportOptions}
+            onclose={handleCancelExport}
+            onexport={executeExport}>
+        </c-sherlock-export-modal>
+    </lightning-card>
+</template>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Channel for Sherlock Search Master-Receiver communication</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <description>Context information including instanceId and event type</description>
+        <fieldName>context</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Configuration details such as target object and columns definition</description>
+        <fieldName>config</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Search criteria for Apex builder</description>
+        <fieldName>searchCriteria</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <description>Actual data payload returned from search</description>
+        <fieldName>data</fieldName>
+    </lightningMessageFields>
+    <masterLabel>SherlockSearchChannel</masterLabel>
+</LightningMessageChannel>

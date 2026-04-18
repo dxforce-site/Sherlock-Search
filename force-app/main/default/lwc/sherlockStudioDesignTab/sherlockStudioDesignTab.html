@@ -1,0 +1,90 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <div class="slds-var-m-bottom_medium">
+            <h4 class="slds-text-title_bold slds-var-m-bottom_xx-small">コンポーネント用タイトル</h4>
+            <div class="slds-grid slds-gutters_x-small">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="検索パネルのタイトル" value={panelTitle} onchange={handlePanelTitleChange} placeholder="検索パネル"></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="検索結果のタイトル" value={resultsTitle} onchange={handleResultsTitleChange} placeholder="検索結果パネル"></lightning-input>
+                </div>
+            </div>
+        </div>
+
+        <div class="slds-var-m-bottom_medium slds-size_1-of-2">
+            <lightning-combobox 
+                label="検索フォームの列数"
+                value={searchFormColumns}
+                options={columnOptions}
+                onchange={handleColumnChange}>
+            </lightning-combobox>
+        </div>
+
+        <div class="slds-var-m-bottom_medium">
+            <h4 class="slds-text-title_bold slds-var-m-bottom_xx-small">パネル内検索ボタンの設定</h4>
+            <lightning-input 
+                type="checkbox" 
+                label="検索ボタンを表示" 
+                checked={showInlineSearchButton} 
+                onchange={handleShowButtonChange}
+                class="slds-var-m-bottom_xx-small">
+            </lightning-input>
+
+            <template lwc:if={showInlineSearchButton}>
+                <div class="slds-grid slds-gutters_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input label="ボタンのラベル" value={panelButtonLabel} onchange={handlePanelButtonLabelChange}></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">
+                                バリエーション
+                                <a href="https://developer.salesforce.com/docs/platform/lightning-component-reference/guide/lightning-button.html" target="_blank" class="slds-var-m-left_xx-small" title="ヘルプドキュメントを開く">
+                                    <lightning-icon icon-name="utility:help_doc_ext" size="xx-small"></lightning-icon>
+                                </a>
+                            </label>
+                            <div class="slds-form-element__control">
+                                <lightning-combobox 
+                                    label="バリエーション" 
+                                    variant="label-hidden" 
+                                    value={panelButtonVariant} 
+                                    options={variantOptions} 
+                                    onchange={handlePanelButtonVariantChange}>
+                                </lightning-combobox>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div class="">
+            <h4 class="slds-text-title_bold slds-var-m-bottom_xx-small">Sherlock Search Button コンポーネントの設定</h4>
+            <div class="slds-grid slds-gutters_small">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="ボタンのラベル" value={standaloneButtonLabel} onchange={handleStandaloneButtonLabelChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">
+                            バリエーション
+                            <a href="https://developer.salesforce.com/docs/platform/lightning-component-reference/guide/lightning-button.html" target="_blank" class="slds-var-m-left_xx-small" title="ヘルプドキュメントを開く">
+                                <lightning-icon icon-name="utility:help_doc_ext" size="xx-small"></lightning-icon>
+                            </a>
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-combobox 
+                                label="バリエーション" 
+                                variant="label-hidden" 
+                                value={standaloneButtonVariant} 
+                                options={variantOptions} 
+                                onchange={handleStandaloneButtonVariantChange}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

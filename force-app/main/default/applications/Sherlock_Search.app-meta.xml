@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <logo>SherlockSearchLogo</logo>
+        <logoVersion>1</logoVersion>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Sherlock Search</label>
+    <navType>Console</navType>
+    <tabs>Sherlock_Search</tabs>
+    <tabs>sherlockStudio</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Sherlock_Search_UtilityBar</utilityBar>
+    <workspaceConfig>
+        <mappings>
+            <tab>Sherlock_Search</tab>
+        </mappings>
+        <mappings>
+            <tab>sherlockStudio</tab>
+        </mappings>
+    </workspaceConfig>
+</CustomApplication>

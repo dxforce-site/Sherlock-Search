@@ -1,0 +1,165 @@
+<template>
+    <lightning-card title="Sherlock Studio" icon-name="custom:custom67">
+        <div class="slds-var-p-around_medium">
+            <!-- 1. Header Area: Instance Settings Management -->
+            <div class="slds-grid slds-grid_vertical-align-center slds-var-m-bottom_medium slds-border_bottom slds-var-p-bottom_medium">
+                <div class="slds-col slds-grow-none">
+                    <lightning-icon icon-name="utility:settings" size="small" class="slds-var-m-right_x-small"></lightning-icon>
+                </div>
+                <div class="slds-col slds-size_1-of-4 slds-grow">
+                    <lightning-combobox
+                        name="settingsId"
+                        label="設定ID"
+                        variant="label-hidden"
+                        value={instanceId}
+                        placeholder="新規設定 (未保存)"
+                        options={idOptions}
+                        onchange={handleSettingsChange}
+                        class="slds-var-m-right_xx-small"
+                        style="width: 100%;">
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-grow-none slds-var-m-left_xx-small">
+                    <lightning-button-icon 
+                        icon-name="utility:retail_execution" 
+                        variant="border-filled" 
+                        alternative-text="保存"
+                        title="設定を保存する"
+                        onclick={openSaveModal}
+                        disabled={isSaveDisabled}>
+                    </lightning-button-icon>
+                    <template lwc:if={instanceId}>
+                        <lightning-button-icon 
+                            icon-name="utility:delete" 
+                            variant="border-filled" 
+                            alternative-text="削除" 
+                            title="設定を削除する"
+                            onclick={handleDeleteConfig}
+                            class="slds-var-m-left_xx-small">
+                        </lightning-button-icon>
+                    </template>
+                </div>
+            </div>
+
+            <!-- 2. Main Tabset Container -->
+            <lightning-tabset variant="scoped">
+                
+                <!-- Tab 1: Data Source -->
+                <lightning-tab label="データソース" icon-name="utility:database">
+                    <c-sherlock-studio-data-source-tab
+                        all-objects={allObjects}
+                        target-object={targetObject}
+                        target-object-label={targetObjectLabel}
+                        search-term={searchTerm}
+                        onconfigchange={handleGeneralConfigChange}>
+                    </c-sherlock-studio-data-source-tab>
+                </lightning-tab>
+
+                <!-- Conditionally Rendered Tabs -->
+                <template lwc:if={showTabs}>
+                    <!-- Tab 2: Fields & Columns -->
+                    <lightning-tab label="項目と列" icon-name="utility:table">
+                        <c-sherlock-studio-fields-tab
+                            target-object={targetObject}
+                            target-object-label={targetObjectLabel}
+                            field-options={fieldOptions}
+                            search-fields={searchFields}
+                            result-columns={resultColumns}
+                            parent-field-labels={parentFieldLabels}
+                            child-rel-options={childRelOptions}
+                            child-relation-value={childRelationValue}
+                            child-object-api-name={childObjectApiName}
+                            child-object-label={childObjectLabel}
+                            child-relationship-field={childRelationshipField}
+                            child-field-options={childFieldOptions}
+                            child-fields={childFields}
+                            child-parent-fields={childParentFields}
+                            onconfigchange={handleGeneralConfigChange}>
+                        </c-sherlock-studio-fields-tab>
+                    </lightning-tab>
+
+                    <!-- Tab 3: UI Design -->
+                    <lightning-tab label="UI デザイン" icon-name="utility:brush">
+                        <c-sherlock-studio-design-tab
+                            panel-title={panelTitle}
+                            results-title={resultsTitle}
+                            search-form-columns={searchFormColumns}
+                            show-inline-search-button={showInlineSearchButton}
+                            panel-button-label={panelButtonLabel}
+                            panel-button-variant={panelButtonVariant}
+                            standalone-button-label={standaloneButtonLabel}
+                            standalone-button-variant={standaloneButtonVariant}
+                            onconfigchange={handleGeneralConfigChange}>
+                        </c-sherlock-studio-design-tab>
+                    </lightning-tab>
+
+                    <!-- Tab 4: Flow Integration -->
+                    <lightning-tab label="フロー連携" icon-name="utility:flow">
+                        <c-sherlock-studio-flow-tab
+                            available-flows={availableFlows}
+                            flow-search-term={flowSearchTerm}
+                            bulk-flow-api-name={bulkFlowApiName}
+                            bulk-flow-button-label={bulkFlowButtonLabel}
+                            bulk-flow-button-icon={bulkFlowButtonIcon}
+                            onconfigchange={handleGeneralConfigChange}>
+                        </c-sherlock-studio-flow-tab>
+                    </lightning-tab>
+
+                    <!-- Tab 5: Advanced Logic -->
+                    <lightning-tab label="拡張ロジック" icon-name="utility:setup">
+                        <c-sherlock-studio-logic-tab
+                            hidden-filter={hiddenFilter}
+                            enable-export={enableExport}
+                            export-limit={exportLimit}
+                            onconfigchange={handleGeneralConfigChange}>
+                        </c-sherlock-studio-logic-tab>
+                    </lightning-tab>
+                </template>
+            </lightning-tabset>
+
+        </div>
+    </lightning-card>
+
+    <!-- Save Settings Modal -->
+    <template lwc:if={isSaveModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="閉じる" onclick={closeSaveModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">閉じる</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium slds-hyphenate">設定を保存</h2>
+                </header>
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <template lwc:if={instanceId}>
+                        <lightning-radio-group name="saveType"
+                            label="保存方法"
+                            options={saveOptions}
+                            value={saveType}
+                            onchange={handleSaveTypeChange}
+                            type="radio">
+                        </lightning-radio-group>
+                    </template>
+                    
+                    <template lwc:if={isSaveAsNew}>
+                        <lightning-input 
+                            type="text" 
+                            label="新規設定 ID (英数字)" 
+                            value={newSettingsId} 
+                            onchange={handleNewSettingsIdChange}
+                            class="slds-var-m-top_small"
+                            placeholder="3文字以上入力..."
+                            required>
+                        </lightning-input>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeSaveModal}>キャンセル</button>
+                    <button class="slds-button slds-button_brand" onclick={executeSaveSettings} disabled={isModalSaveDisabled}>保存</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

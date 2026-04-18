@@ -1,0 +1,98 @@
+<template>
+    <!-- Tile View -->
+    <template lwc:if={isTileView}>
+        <div class="slds-grid slds-wrap slds-gutters">
+            <template for:each={data} for:item="rec">
+                <div key={rec.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3 slds-var-m-bottom_small">
+                    <article class="slds-card slds-card_boundary">
+                        <div class="slds-card__header slds-grid">
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name="standard:record" size="small"></lightning-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <a href="#" 
+                                           class="slds-card__header-link slds-truncate" 
+                                           title={rec._tileHeader}
+                                           data-id={rec.Id}
+                                           onclick={handleRecordNavigate}>
+                                            <span>{rec._tileHeader}</span>
+                                        </a>
+                                    </h2>
+                                </div>
+                                <div class="slds-no-flex">
+                                    <lightning-button-menu 
+                                        icon-size="x-small"
+                                        menu-alignment="right"
+                                        variant="border-filled"
+                                        data-id={rec.Id}
+                                        onselect={handleTileAction}
+                                        alternative-text="レコードアクション">
+                                        <lightning-menu-item value="edit" label="編集"></lightning-menu-item>
+                                        <lightning-menu-item value="delete" label="削除"></lightning-menu-item>
+                                    </lightning-button-menu>
+                                </div>
+                            </header>
+                        </div>
+                        <div class="slds-card__body slds-card__body_inner">
+                            <dl class="slds-list_horizontal slds-wrap">
+                                <template for:each={rec._tileFields} for:item="field">
+                                    <dt key={field.label} class="slds-item_label slds-text-color_weak slds-truncate" title={field.label}>{field.label}</dt>
+                                    <dd key={field.label} class="slds-item_detail slds-truncate" title={field.value}>{field.value}</dd>
+                                </template>
+                            </dl>
+                        </div>
+                        <template lwc:if={showDrilldown}>
+                            <footer class="slds-card__footer slds-p-around_none slds-border_top" style="background-color: var(--slds-g-color-neutral-base-95);">
+                                <lightning-button 
+                                    variant="base" 
+                                    label="関連レコードを表示" 
+                                    icon-name="utility:chevronright" 
+                                    icon-position="right"
+                                    class="slds-size_1-of-1 slds-text-align_center slds-var-p-vertical_x-small"
+                                    data-id={rec.Id}
+                                    onclick={handleTileDrilldown}>
+                                </lightning-button>
+                            </footer>
+                        </template>
+                    </article>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Tile View Load More Button -->
+        <template lwc:if={enableInfiniteLoading}>
+            <div class="slds-var-m-top_medium slds-text-align_center">
+                <lightning-button label="さらに読み込む" onclick={handleLoadMore} disabled={isLoadingMore}></lightning-button>
+            </div>
+        </template>
+    </template>
+    
+    <!-- List View (Datatable) -->
+    <template lwc:else>
+        <div class="datatable-wrapper slds-is-relative" style="height: 450px;" onwheel={handleHideIndicator} onclick={handleHideIndicator}>
+            <!-- Indicator: Right edge shadow -->
+            <div lwc:if={showScrollIndicator} class="scroll-shadow-right"></div>
+            
+            <!-- Indicator: Floating badge -->
+            <div class={scrollIndicatorClass}>
+                Shift(⇧) + Scroll <lightning-icon icon-name="utility:chevronright" size="xx-small" variant="inverse" class="scroll-icon slds-var-m-left_xx-small"></lightning-icon>
+            </div>
+
+            <lightning-datatable
+                key-field="Id"
+                data={data}
+                columns={columns}
+                column-widths-mode="fixed"
+                enable-infinite-loading={enableInfiniteLoading}
+                is-loading={isLoadingMore}
+                onloadmore={handleLoadMore}
+                draft-values={draftValues}
+                onsave={handleSave}
+                onrowaction={handleRowAction}
+                onrowselection={handleRowSelection}>
+            </lightning-datatable>
+        </div>
+    </template>
+</template>

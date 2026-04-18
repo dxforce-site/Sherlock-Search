@@ -1,0 +1,60 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <lightning-textarea
+            label="隠し検索条件"
+            placeholder="例: IsActive = true AND AccountId != null"
+            value={hiddenFilter}
+            onchange={handleHiddenFilterChange}
+            class="slds-var-m-bottom_medium"
+            style="--sds-c-textarea-sizing-min-height: 100px;"
+            field-level-help="利用者には見えない隠し検索条件を指定できます。例えば有効なレコードのみを表示させるようにデフォルト条件を指定するには IsActive = true と指定します。例: IsActive = true AND AccountId != null">
+        </lightning-textarea>
+
+        <!-- CSV Export Settings -->
+        <div class="">
+            <h4 class="slds-text-title_bold slds-var-m-bottom_small">CSV エクスポート設定</h4>
+            <div class="slds-grid slds-wrap slds-gutters_small slds-grid_vertical-align-center">
+                <div class="slds-col slds-size_1-of-1 slds-var-m-bottom_small">
+                    <lightning-input 
+                        type="checkbox" 
+                        label="CSV エクスポートを許可する" 
+                        checked={enableExport} 
+                        onchange={handleEnableExportChange}>
+                    </lightning-input>
+                </div>
+                <template lwc:if={enableExport}>
+                    <div class="slds-col slds-size_1-of-1">
+                        <lightning-slider 
+                            label="一回の最大出力件数" 
+                            value={exportLimit} 
+                            onchange={handleExportLimitChange}
+                            min="100" 
+                            max="10000" 
+                            step="100">
+                        </lightning-slider>
+                        <p class="slds-text-body_small slds-var-m-top_xx-small">
+                            この上限までレコードが出力されます。
+                        </p>
+                    </div>
+                    <div class="slds-col slds-size_2-of-3 slds-medium-size_1-of-3 slds-var-m-top_small">
+                        <div class="slds-grid slds-grid_vertical-align-end">
+                            <div class="slds-grow">
+                                <lightning-input 
+                                    label="出力ファイル名" 
+                                    value={exportFileName} 
+                                    onchange={handleExportFileNameChange}
+                                    pattern="[a-zA-Z0-9]*"
+                                    message-when-pattern-mismatch="半角英数字のみ入力可能です（記号・スペース不可）"
+                                    field-level-help="出力するCSVのファイル名（拡張子不要）を指定します。半角英数字のみ使用可能です。空欄の場合は 'Export_オブジェクト名_日時.csv' となります。">
+                                </lightning-input>
+                            </div>
+                            <div class="slds-col slds-grow-none slds-var-p-bottom_x-small slds-var-p-left_xx-small">
+                                <span class="slds-text-body_regular slds-text-color_weak">.csv</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

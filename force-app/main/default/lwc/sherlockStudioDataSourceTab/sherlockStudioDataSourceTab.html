@@ -1,0 +1,43 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <div class="slds-form-element">
+            <label class="slds-form-element__label">対象オブジェクト</label><lightning-helptext content="検索対象となるオブジェクトを選択します。すべてのオブジェクトが対象です。3文字以上入力すると絞り込みが始まります。"></lightning-helptext>
+            <div class="slds-form-element__control">
+                <div class="slds-combobox_container">
+                    <div class={dropdownClass} aria-expanded={showDropdown} aria-haspopup="listbox" role="combobox">
+                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                            <input 
+                                type="text" 
+                                class="slds-input slds-combobox__input" 
+                                placeholder="オブジェクトを検索 (3文字以上入力)..." 
+                                autocomplete="off" 
+                                value={searchTerm} 
+                                oninput={handleSearchInput} 
+                                onfocus={handleInputFocus} 
+                                onblur={handleBlur} />
+                            <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                            </span>
+                        </div>
+                        <div class="slds-dropdown slds-dropdown_length-5 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                <template for:each={filteredOptions} for:item="option">
+                                    <li key={option.value} role="presentation" class="slds-listbox__item" data-value={option.value} data-label={option.label} onclick={handleOptionSelect}>
+                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                            </span>
+                                            <span class="slds-media__body">
+                                                <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                            </span>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

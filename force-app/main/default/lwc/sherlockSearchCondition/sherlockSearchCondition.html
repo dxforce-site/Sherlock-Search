@@ -1,0 +1,180 @@
+<template>
+    <div class="slds-p-around_none">
+        <!-- Keyword Search -->
+        <lightning-input 
+            type="search" 
+            label="キーワード検索" 
+            value={searchKeyword}
+            placeholder="キーワードを入力..."
+            onchange={handleKeywordChange}
+            onkeyup={handleKeywordChange}
+            oncommit={handleSearchClick}
+            field-level-help="対象オブジェクトのテキスト、電話、メール、URL、および選択リスト項目を対象にあいまい検索します。検索結果に表示していない項目も検索対象となります。"
+            disabled={disabled}
+            class="slds-var-m-bottom_small">
+        </lightning-input>
+
+        <!-- Dynamic Form Section -->
+        <template lwc:if={hasSearchFields}>
+            <div class="slds-grid slds-wrap slds-var-m-top_medium">
+                <template for:each={normalizedSearchFields} for:item="field">
+                    <div key={field.fieldName} class={gridClass}>
+                        <template lwc:if={field.isLookup}>
+                            <lightning-record-picker
+                                label={field.label}
+                                data-id={field.fieldName}
+                                placeholder="レコードを検索..."
+                                object-api-name={field.referenceTo}
+                                value={field.value}
+                                onchange={handleFormInputChange}
+                                disabled={disabled}>
+                            </lightning-record-picker>
+                        </template>
+                        <template lwc:elseif={field.isPicklist}>
+                            <lightning-combobox
+                                label={field.label}
+                                data-id={field.fieldName}
+                                options={field.displayOptions}
+                                value={field.value}
+                                onchange={handleFormInputChange}
+                                placeholder="選択してください..."
+                                disabled={disabled}>
+                            </lightning-combobox>
+                        </template>
+                        <template lwc:elseif={field.isRange}>
+                            <div class="slds-grid slds-gutters_x-small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input 
+                                        label={field.label}
+                                        data-id={field.fieldName}
+                                        data-range-type="min"
+                                        onchange={handleFormInputChange}
+                                        placeholder="最小"
+                                        type={field.inputType}
+                                        value={field.valueMin}
+                                        disabled={disabled}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input 
+                                        label="〜"
+                                        data-id={field.fieldName}
+                                        data-range-type="max"
+                                        onchange={handleFormInputChange}
+                                        placeholder="最大"
+                                        type={field.inputType}
+                                        value={field.valueMax}
+                                        disabled={disabled}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <lightning-input 
+                                label={field.label}
+                                data-id={field.fieldName}
+                                onchange={handleFormInputChange}
+                                placeholder={field.label}
+                                type={field.inputType}
+                                value={field.value}
+                                checked={field.checked}
+                                disabled={disabled}>
+                            </lightning-input>
+                        </template>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Advanced Search Toggle -->
+            <div class="slds-var-m-top_x-small">
+                <a href="#" onclick={toggleAdvancedSearch} aria-label="高度な検索ロジックを切り替え">
+                    <lightning-icon icon-name={advancedSearchIcon} size="xx-small" class="slds-var-m-right_x-small" alternative-text="高度な検索ロジック"></lightning-icon>
+                    高度な検索ロジック
+                </a>
+            </div>
+            
+            <!-- Custom Logic Input -->
+            <template lwc:if={showAdvancedSearch}>
+                <div class="slds-var-m-top_small slds-var-p-around_small slds-box slds-theme_shade">
+                    <lightning-input
+                        type="text"
+                        label="カスタムフィルターロジック"
+                        value={customLogic}
+                        onchange={handleCustomLogicChange}
+                        onkeyup={handleCustomLogicChange}
+                        placeholder="例: 1 AND (2 OR 3)"
+                        field-level-help="数字、AND、OR、NOT、括弧を使用して条件を指定します。"
+                        disabled={disabled}>
+                    </lightning-input>
+
+                    <!-- Multi-column Sort UI -->
+                    <div class="slds-var-m-top_medium slds-border_top slds-var-p-top_small">
+                        <h3 class="slds-text-heading_small slds-var-m-bottom_x-small">マルチカラム並び替え</h3>
+                        <template for:each={formattedSortCriteria} for:item="crit">
+                            <div key={crit.id} class="slds-box slds-box_xx-small slds-theme_default slds-var-m-bottom_x-small">
+                                <!-- Header: Priority and Delete -->
+                                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-m-bottom_xx-small">
+                                    <span class="slds-badge slds-theme_success">{crit.priorityText}</span>
+                                    <lightning-button-icon
+                                        icon-name="utility:delete"
+                                        variant="bare"
+                                        alternative-text="削除"
+                                        title="削除"
+                                        data-id={crit.id}
+                                        onclick={handleRemoveSort}
+                                        disabled={disabled}>
+                                    </lightning-button-icon>
+                                </div>
+                                <!-- Body: Inputs -->
+                                <div class="slds-grid slds-wrap slds-gutters_xx-small">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-var-m-bottom_xx-small">
+                                        <lightning-combobox
+                                            label="対象項目"
+                                            value={crit.fieldName}
+                                            options={sortFieldOptions}
+                                            data-id={crit.id}
+                                            onchange={handleSortFieldChange}
+                                            disabled={disabled}>
+                                        </lightning-combobox>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12">
+                                        <lightning-combobox
+                                            label="順序"
+                                            value={crit.direction}
+                                            options={sortDirectionOptions}
+                                            data-id={crit.id}
+                                            onchange={handleSortDirectionChange}
+                                            disabled={disabled}>
+                                        </lightning-combobox>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:if={canAddSort}>
+                            <div class="slds-var-m-top_x-small">
+                                <lightning-button
+                                    icon-name="utility:add"
+                                    label="並び替え条件を追加"
+                                    variant="base"
+                                    onclick={handleAddSort}
+                                    disabled={disabled}>
+                                </lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+        
+        <template lwc:if={isButtonVisible}>
+            <div class="slds-var-m-top_medium slds-text-align_right">
+                <lightning-button 
+                    label={effectiveButtonLabel} 
+                    variant={effectiveButtonVariant} 
+                    onclick={handleSearchClick}
+                    disabled={disabled}>
+                </lightning-button>
+            </div>
+        </template>
+    </div>
+</template>

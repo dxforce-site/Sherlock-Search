@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="sherlockSearchResult">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Sherlock Search Result</masterLabel>
+    <description>Receiver component for Sherlock Search Results</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage,lightningCommunity__Default">
+            <property name="instanceId" type="String" default="Search_A" label="設定ID" description="Identifier to link with Panel." />
+        </targetConfig>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="instanceId" type="String" default="Search_A" label="設定ID" description="Identifier to link with Panel." />
+            <property name="selectedRecordIds" type="String[]" role="outputOnly" label="Selected Record IDs" description="IDs of rows selected in the Datatable." />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

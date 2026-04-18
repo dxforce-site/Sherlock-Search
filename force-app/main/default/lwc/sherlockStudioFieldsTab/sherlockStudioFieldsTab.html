@@ -1,0 +1,393 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <!-- Searchable Fields Section -->
+        <div class="slds-form-element slds-var-m-bottom_medium slds-box slds-box_xx-small slds-theme_shade">
+            <label class="slds-form-element__label slds-text-title_bold slds-var-p-around_x-small slds-m-bottom_none">
+                検索条件項目
+            </label>
+            <div class="slds-form-element__control slds-var-p-horizontal_small slds-var-p-bottom_small">
+                <div class="slds-size_1-of-2">
+                    <lightning-input 
+                        type="search" 
+                        label="利用可能な項目を絞り込み" 
+                        variant="label-hidden"
+                        onchange={handleFieldSearchChange} 
+                        placeholder="キーワードを入力..." 
+                        class="slds-var-m-bottom_x-small">
+                    </lightning-input>
+                </div>
+                <lightning-dual-listbox 
+                    label="検索条件項目"
+                    variant="label-hidden"
+                    source-label="利用可能"
+                    selected-label="選択済み"
+                    options={filteredFieldOptions}
+                    value={searchFields}
+                    onchange={handleSearchFieldsChange}>
+                </lightning-dual-listbox>
+            </div>
+        </div>
+
+        <!-- Result Columns Section -->
+        <div class="slds-form-element slds-var-m-bottom_medium slds-box slds-box_xx-small slds-theme_shade">
+            <label class="slds-form-element__label slds-text-title_bold slds-var-p-around_x-small slds-m-bottom_none">
+                表示列
+            </label>
+            
+            <div class="slds-form-element__control slds-var-p-horizontal_small">
+                <div class="slds-size_1-of-2">
+                    <lightning-input 
+                        type="search" 
+                        label="表示列を絞り込み" 
+                        variant="label-hidden"
+                        onchange={handleColumnSearchChange} 
+                        placeholder="キーワードを入力..." 
+                        class="slds-var-m-bottom_x-small">
+                    </lightning-input>
+                </div>
+                <lightning-dual-listbox 
+                    label="表示列"
+                    variant="label-hidden"
+                    source-label="利用可能"
+                    selected-label="選択済み"
+                    options={filteredColumnOptions}
+                    value={resultColumns}
+                    onchange={handleResultColumnsChange}>
+                </lightning-dual-listbox>
+            </div>
+
+            <!-- Parent Field Explorer -->
+            <div class="slds-box slds-box_small slds-var-m-around_small slds-theme_default">
+                <h4 class="slds-text-title_bold slds-var-m-bottom_small">
+                    <lightning-icon icon-name="utility:hierarchy" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
+                    親レコード項目の探索
+                </h4>
+                <div class="slds-grid slds-gutters_small slds-grid_vertical-align-end">
+                    <div class="slds-col slds-size_2-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">参照項目の選択</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-combobox_container">
+                                    <div class={lookupDropdownClass} aria-expanded={showLookupDropdown} aria-haspopup="listbox" role="combobox">
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                            <input 
+                                                type="text" 
+                                                class="slds-input slds-combobox__input" 
+                                                placeholder="リレーションを選択..."
+                                                autocomplete="off" 
+                                                value={lookupSearchTerm} 
+                                                oninput={handleLookupSearchInput} 
+                                                onfocus={handleLookupFocus} 
+                                                onblur={handleLookupBlur} />
+                                            <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                                <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                            </span>
+                                        </div>
+                                        <div class="slds-dropdown slds-dropdown_length-10 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template for:each={filteredLookupFieldOptions} for:item="option">
+                                                    <li key={option.value} role="presentation" class="slds-listbox__item" data-value={option.value} data-label={option.label} onclick={handleLookupSelect}>
+                                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_2-of-5">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">親レコード項目の選択</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-combobox_container">
+                                    <div class={parentDropdownClass} aria-expanded={showParentDropdown} aria-haspopup="listbox" role="combobox">
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                            <input 
+                                                type="text" 
+                                                class="slds-input slds-combobox__input" 
+                                                placeholder={parentDropdownPlaceholder}
+                                                autocomplete="off" 
+                                                value={parentSearchTerm} 
+                                                oninput={handleParentSearchInput} 
+                                                onfocus={handleParentFocus} 
+                                                onblur={handleParentBlur}
+                                                disabled={isParentFieldDisabled} />
+                                            <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                                <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                            </span>
+                                        </div>
+                                        <div class="slds-dropdown slds-dropdown_length-10 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template for:each={filteredParentFieldOptions} for:item="option">
+                                                    <li key={option.value} role="presentation" class="slds-listbox__item" data-value={option.value} data-label={option.label} onclick={handleParentSelect}>
+                                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                                <template lwc:if={noParentFieldsFound}>
+                                                    <li role="presentation" class="slds-listbox__item">
+                                                        <div class="slds-align_absolute-center slds-var-p-around_small slds-text-color_weak">項目が見つかりませんでした</div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-5">
+                        <lightning-button 
+                            label="表示列に追加" 
+                            icon-name="utility:add" 
+                            variant="brand" 
+                            onclick={handleAddParentField}
+                            disabled={isAddParentDisabled}
+                            class="slds-size_1-of-1">
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced: Child Record Drilldown Section -->
+        <div class="slds-form-element slds-box slds-box_xx-small slds-theme_shade">
+            <label class="slds-form-element__label slds-text-title_bold slds-var-p-around_x-small slds-m-bottom_none">
+                高度な設定：子レコードの表示（任意）
+            </label>
+            
+            <div class="slds-form-element__control slds-var-p-horizontal_small slds-var-p-bottom_small">
+                <h4 class="slds-text-title_bold slds-var-m-bottom_small slds-var-m-top_small">
+                    Step 1: 子オブジェクトの選択
+                </h4>
+                <div class="slds-grid slds-gutters_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label">対象となる子リレーション</label>
+                            <div class="slds-form-element__control">
+                                <div class="slds-combobox_container">
+                                    <div class={childRelDropdownClass} aria-expanded={showChildRelDropdown} aria-haspopup="listbox" role="combobox">
+                                        <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                            <input 
+                                                type="text" 
+                                                class="slds-input slds-combobox__input" 
+                                                placeholder="子オブジェクトを選択..."
+                                                autocomplete="off" 
+                                                value={childRelSearchTerm} 
+                                                oninput={handleChildRelSearchInput} 
+                                                onfocus={handleChildRelFocus} 
+                                                onblur={handleChildRelBlur} />
+                                            <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                                <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                            </span>
+                                        </div>
+                                        <div class="slds-dropdown slds-dropdown_length-10 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                                            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                <template for:each={filteredChildRelOptions} for:item="option">
+                                                    <li key={option.value} role="presentation" class="slds-listbox__item" data-value={option.value} data-label={option.label} onclick={handleChildRelSelect}>
+                                                        <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                                            <span class="slds-media__figure slds-listbox__option-icon">
+                                                                <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                                            </span>
+                                                            <span class="slds-media__body">
+                                                                <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                                            </span>
+                                                        </div>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="slds-text-body_small slds-text-color_weak slds-var-m-top_xx-small">
+                    ※ ドリルダウンする子オブジェクトを1つだけ選択します。
+                </p>
+
+                <template lwc:if={childObjectApiName}>
+                    <h4 class="slds-text-title_bold slds-var-m-bottom_small slds-var-m-top_medium">
+                        {childStep2Label}
+                    </h4>
+                    <div class="slds-size_1-of-2">
+                        <lightning-input 
+                            type="search" 
+                            label="子表示列を絞り込み" 
+                            variant="label-hidden"
+                            onchange={handleChildColumnSearchChange} 
+                            placeholder="キーワードを入力..." 
+                            class="slds-var-m-bottom_x-small">
+                        </lightning-input>
+                    </div>
+                    <lightning-dual-listbox 
+                        label="子レコード表示列"
+                        variant="label-hidden"
+                        source-label="利用可能"
+                        selected-label="選択済み"
+                        options={filteredChildColumnOptions}
+                        value={childFields}
+                        onchange={handleChildFieldsChange}>
+                    </lightning-dual-listbox>
+
+                    <h4 class="slds-text-title_bold slds-var-m-bottom_small slds-var-m-top_medium">
+                        {childStep3Label}
+                    </h4>
+
+                    <div class="slds-form-element__control slds-var-p-bottom_small">
+                        <div class="slds-size_1-of-2">
+                            <lightning-input 
+                                type="search" 
+                                label="親の強調表示項目を絞り込み" 
+                                variant="label-hidden"
+                                onchange={handleChildParentSearchChange} 
+                                placeholder="キーワードを入力..." 
+                                class="slds-var-m-bottom_x-small">
+                            </lightning-input>
+                        </div>
+                        <lightning-dual-listbox 
+                            label="親レコード強調表示"
+                            variant="label-hidden"
+                            source-label="利用可能"
+                            selected-label="選択済み"
+                            options={filteredChildParentFieldOptions}
+                            value={childParentFields}
+                            onchange={handleChildParentFieldsChange}>
+                        </lightning-dual-listbox>
+                    </div>
+
+                    <div class="slds-box slds-box_small slds-theme_default">
+                        <h4 class="slds-text-title_bold slds-var-m-bottom_small">
+                            <lightning-icon icon-name="utility:hierarchy" size="x-small" class="slds-var-m-right_x-small"></lightning-icon>
+                            親レコード項目の探索
+                        </h4>
+                        <div class="slds-grid slds-gutters_small slds-grid_vertical-align-end">
+                            <div class="slds-col slds-size_2-of-5">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label">参照項目の選択</label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-combobox_container">
+                                            <div class={step3LookupDropdownClass} aria-expanded={showStep3LookupDropdown} aria-haspopup="listbox" role="combobox">
+                                                <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                    <input 
+                                                        type="text" 
+                                                        class="slds-input slds-combobox__input" 
+                                                        placeholder="リレーションを選択..."
+                                                        autocomplete="off" 
+                                                        value={step3LookupSearchTerm} 
+                                                        oninput={handleStep3LookupSearchInput} 
+                                                        onfocus={handleStep3LookupFocus} 
+                                                        onblur={handleStep3LookupBlur} />
+                                                    <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                                        <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                                    </span>
+                                                </div>
+                                                <div class="slds-dropdown slds-dropdown_length-10 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                                                    <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                        <template for:each={filteredStep3LookupFieldOptions} for:item="option">
+                                                            <li key={option.value} role="presentation" class="slds-listbox__item" data-value={option.value} data-label={option.label} onclick={handleStep3LookupSelect}>
+                                                                <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                                                        <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                                                    </span>
+                                                                    <span class="slds-media__body">
+                                                                        <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_2-of-5">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label">親レコード項目の選択</label>
+                                    <div class="slds-form-element__control">
+                                        <div class={step3DropdownClass}>
+                                            <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                                <input 
+                                                    type="text" 
+                                                    class="slds-input slds-combobox__input" 
+                                                    placeholder={parentSearchPlaceholder}
+                                                    value={step3ParentSearchTerm}
+                                                    oninput={handleStep3ParentSearchInput}
+                                                    onfocus={handleStep3ParentFocus}
+                                                    onblur={handleStep3ParentBlur}
+                                                    role="combobox" 
+                                                    aria-expanded={showStep3ParentDropdown} 
+                                                    aria-haspopup="listbox" />
+                                                <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                                    <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                                </span>
+                                            </div>
+                                            <div id="step3-listbox-id" class="slds-dropdown slds-dropdown_length-5 slds-dropdown_left" role="listbox">
+                                                <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                                    <template lwc:if={isLoadingStep3ParentFields}>
+                                                        <li role="presentation" class="slds-listbox__item">
+                                                            <div class="slds-align_absolute-center slds-var-p-around_small">
+                                                                読み込み中...
+                                                            </div>
+                                                        </li>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <template for:each={filteredStep3ParentFieldOptions} for:item="option">
+                                                            <li key={option.value} role="presentation" class="slds-listbox__item">
+                                                                <div 
+                                                                    data-value={option.value} 
+                                                                    data-label={option.label}
+                                                                    onclick={handleStep3ParentSelect}
+                                                                    class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" 
+                                                                    role="option">
+                                                                    <span class="slds-media__figure slds-listbox__option-icon">
+                                                                        <lightning-icon icon-name="standard:record" size="x-small"></lightning-icon>
+                                                                    </span>
+                                                                    <span class="slds-media__body">
+                                                                        <span class="slds-truncate" title={option.label}>{option.label}</span>
+                                                                    </span>
+                                                                </div>
+                                                            </li>
+                                                        </template>
+                                                    </template>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-5">
+                                <lightning-button 
+                                    label="強調表示に追加" 
+                                    icon-name="utility:add" 
+                                    variant="brand" 
+                                    onclick={handleAddStep3ParentField}
+                                    disabled={isAddStep3ParentDisabled}
+                                    class="slds-size_1-of-1">
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

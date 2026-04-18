@@ -1,0 +1,33 @@
+<template>
+    <lightning-card title={panelTitle} icon-name="standard:search">
+        <!-- Favorites Header Actions (Removed from slot to body) -->
+        <div class="slds-var-p-around_medium" style="position: relative; min-height: 100px;">
+            <template lwc:if={isLoading}>
+                <lightning-spinner alternative-text="読み込み中..." size="small"></lightning-spinner>
+            </template>
+
+            <!-- Favorite Management Component (Extracted) -->
+            <c-sherlock-favorite-manager 
+                favorite-options={favoriteOptions} 
+                selected-favorite-id={selectedFavoriteId} 
+                is-loading={isLoading} 
+                onfavoritechange={handleFavoriteChange} 
+                ondeletefavorite={handleDeleteFavorite} 
+                onsavefavorite={executeSaveFavorite}>
+            </c-sherlock-favorite-manager>
+
+            <!-- Search Condition Component (Extracted) -->
+            <c-sherlock-search-condition 
+                config={configData} 
+                search-keyword={searchKeyword} 
+                form-values={formValues} 
+                custom-logic={customLogic} 
+                sort-criteria={sortCriteria} 
+                show-advanced-search={showAdvancedSearch}
+                disabled={isSearchDisabled} 
+                onconditionchange={handleConditionChange} 
+                onsearch={handleSearchClick}>
+            </c-sherlock-search-condition>
+        </div>
+    </lightning-card>
+</template>

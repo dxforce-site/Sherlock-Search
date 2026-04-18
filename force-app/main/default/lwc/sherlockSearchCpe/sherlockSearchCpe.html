@@ -1,0 +1,39 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <lightning-input 
+            label="Instance ID (LMS)" 
+            value={instanceId} 
+            onchange={handleInstanceIdChange}>
+        </lightning-input>
+
+        <lightning-combobox 
+            label="Target Object"
+            value={targetObject}
+            options={objectOptions}
+            onchange={handleObjectChange}
+            class="slds-var-m-top_small">
+        </lightning-combobox>
+
+        <template lwc:if={targetObject}>
+            <lightning-dual-listbox 
+                label="Searchable Fields"
+                source-label="Available"
+                selected-label="Selected"
+                options={fieldOptions}
+                value={searchFields}
+                onchange={handleSearchFieldsChange}
+                class="slds-var-m-top_small">
+            </lightning-dual-listbox>
+
+            <lightning-dual-listbox 
+                label="Result Columns"
+                source-label="Available"
+                selected-label="Selected"
+                options={fieldOptions}
+                value={resultColumns}
+                onchange={handleResultColumnsChange}
+                class="slds-var-m-top_small">
+            </lightning-dual-listbox>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,78 @@
+<template>
+    <div class="slds-var-p-around_small">
+        <div class="">
+            <h4 class="slds-text-title_bold slds-var-m-bottom_small">一括フローアクション設定</h4>
+            <div class="slds-scoped-notification slds-media slds-media_center slds-theme_info slds-var-m-bottom_small" role="status">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="utility:info" size="small" variant="inverse"></lightning-icon>
+                </div>
+                <div class="slds-media__body">
+                    <p>選択行のIDリストをフローで受け取るには、フロー側で入力変数 <strong>ids</strong> (テキスト・コレクション・入力で使用可能) を定義してください。</p>
+                </div>
+            </div>
+            
+            <div class="slds-grid slds-gutters_small slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-var-m-bottom_small">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">対象画面フロー</label>
+                        <div class="slds-form-element__control">
+                            <div class="slds-combobox_container">
+                                <div class={flowDropdownClass} aria-expanded={showFlowDropdown} aria-haspopup="listbox" role="combobox">
+                                    <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                        <input
+                                            type="text"
+                                            class="slds-input slds-combobox__input"
+                                            placeholder="フローを検索..."
+                                            value={flowSearchTerm}
+                                            oninput={handleFlowSearchInput}
+                                            onfocus={handleFlowFocus}
+                                            onblur={handleFlowBlur}
+                                        />
+                                        <span class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right">
+                                            <lightning-icon icon-name="utility:search" size="x-small" class="slds-icon slds-icon_x-small slds-icon-text-default"></lightning-icon>
+                                        </span>
+                                    </div>
+                                    <div class="slds-dropdown slds-dropdown_length-5 slds-dropdown_left" role="listbox" style="max-height: 250px; overflow-y: auto;">
+                                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                                            <template for:each={filteredFlowOptions} for:item="f">
+                                                <li key={f.value} role="presentation" class="slds-listbox__item" data-value={f.value} data-label={f.label} onclick={handleFlowSelect}>
+                                                    <div class="slds-media slds-listbox__option slds-listbox__option_plain slds-media_small" role="option">
+                                                        <span class="slds-media__body">
+                                                            <span class="slds-truncate" title={f.displayLabel}>{f.displayLabel}</span>
+                                                        </span>
+                                                    </div>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input label="ボタンのラベル" value={bulkFlowButtonLabel} onchange={handleBulkFlowLabelChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label">
+                            ボタンのアイコン (SLDS)
+                            <a href="https://www.lightningdesignsystem.com/2e1ef8501/p/83309d-icons/b/586464" target="_blank" class="slds-var-m-left_xx-small" title="SLDSアイコンリファレンスを開く">
+                                <lightning-icon icon-name="utility:help_doc_ext" size="xx-small"></lightning-icon>
+                            </a>
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-input 
+                                label="ボタンのアイコン (SLDS)" 
+                                variant="label-hidden"
+                                value={bulkFlowButtonIcon} 
+                                onchange={handleBulkFlowIconChange} 
+                                placeholder="utility:play">
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

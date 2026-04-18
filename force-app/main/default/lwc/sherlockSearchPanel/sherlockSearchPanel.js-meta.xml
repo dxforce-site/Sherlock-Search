@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+
+    <isExposed>true</isExposed>
+    <masterLabel>Sherlock Search Panel</masterLabel>
+    <description>Master component for Sherlock Search Configuration</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__HomePage,lightning__RecordPage,lightningCommunity__Default">
+            <property name="instanceId" type="String" default="Search_A" label="設定ID" description="Enter the ID configured in Sherlock Studio." required="true" />
+        </targetConfig>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="instanceId" type="String" default="Search_A" label="設定ID" description="Enter the ID configured in Sherlock Studio." required="true" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

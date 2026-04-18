@@ -1,0 +1,37 @@
+<template>
+    <template lwc:if={isOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-modal="true">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="閉じる" onclick={handleClose}>
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">閉じる</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">CSV出力設定</h2>
+                </header>
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <lightning-radio-group
+                        name="exportScope"
+                        label="出力範囲を選択してください"
+                        options={exportOptions}
+                        value={exportScope}
+                        onchange={handleExportScopeChange}
+                        type="radio">
+                    </lightning-radio-group>
+                    
+                    <template lwc:if={isExporting}>
+                        <div class="slds-var-m-top_medium" style="position:relative; height: 100px;">
+                            <lightning-spinner alternative-text="データ取得中..." size="small" variant="brand"></lightning-spinner>
+                            <p class="slds-text-align_center slds-p-top_large">データを取得中...</p>
+                        </div>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="キャンセル" onclick={handleClose} class="slds-var-m-right_x-small"></lightning-button>
+                    <lightning-button label="出力" variant="brand" onclick={handleExport} disabled={isExporting}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
