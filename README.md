@@ -20,12 +20,26 @@
 
 ## 🛠 インストールとセットアップ
 
-1. **パッケージのインストール**: 提供されたインストール URL からパッケージを組織にインストールします。
+1. **パッケージのインストール**: 以下のリンクから最新バージョン（v1.0.0）をインストールしてください。
+   - **本番環境 / Developer Edition**: [インストールはこちら](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgK000000CBpJQAW)
+   - **Sandbox 環境**: [インストールはこちら](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgK000000CBpJQAW)
 2. **権限セットの割り当て**:
    - `Sherlock Search Admin`: 管理者（Sherlock Studio の利用、設定の保存）
    - `Sherlock Search User`: 一般利用者（検索パネルの利用、エクスポート、フロー実行）
 3. **Studio での構成**: アプリケーションランチャーから「Sherlock Studio」を開き、最初の検索設定を作成します。
 
-## 📄 ライセンス
+## 🛠 クローンとカスタマイズ (Clone & Customization)
 
-Copyright (c) 2026 dxforce.site All rights reserved.
+Sherlock Search は、コミュニティによる活用と発展を歓迎しています。
+
+- **プロジェクトのクローン**: このリポジトリを自由にクローンして、ご自身の Salesforce 開発環境や Sandbox にデプロイしてご利用いただけます。
+- **自由なカスタマイズ**: ソースコードは公開されており、独自の業務要件に合わせて自由に機能を拡張・変更することが可能です。
+- **フィードバック**: バグの報告や、機能改善の提案（Pull Request）も大歓迎です。
+
+独自の検索エンジンを構築するベースとして、ぜひご活用ください！
+
+## 📄 ライセンス (License)
+
+このプロジェクトは **MIT ライセンス** の下で公開されています。個人・商用問わず、改変および再配布が自由に行えます。
+
+Copyright (c) 2026 dxforce.site
