@@ -77,7 +77,7 @@ export function setupColumns(configColumns, configData) {
 
     enrichedColumns.push({
         type: 'action',
-        typeAttributes: { rowActions: [{ label: '編集', name: 'edit' }, { label: '削除', name: 'delete' }] }
+        typeAttributes: { rowActions: [{ label: '編集', name: 'edit' }] }
     });
 
     return enrichedColumns;
@@ -126,7 +126,7 @@ export function setupChildColumns(configChildFields) {
     
     childCols.push({
         type: 'action',
-        typeAttributes: { rowActions: [{ label: '編集', name: 'edit' }, { label: '削除', name: 'delete' }] }
+        typeAttributes: { rowActions: [{ label: '編集', name: 'edit' }] }
     });
 
     return childCols;

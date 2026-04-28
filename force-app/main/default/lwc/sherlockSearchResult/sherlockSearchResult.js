@@ -587,8 +587,6 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
         const objName = this.currentObjectApiName;
         if (actionName === 'edit') {
             this.navigateToRecord(recordId, objName, 'edit');
-        } else if (actionName === 'delete') {
-            this.handleDelete(recordId);
         }
     }
 
