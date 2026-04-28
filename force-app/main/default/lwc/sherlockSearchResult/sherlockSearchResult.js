@@ -474,6 +474,16 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
         this.showFlowModal = false;
     }
 
+    requestRefresh() {
+        const payload = {
+            context: {
+                instanceId: this.instanceId,
+                type: 'FETCH_REFRESH'
+            }
+        };
+        publish(this.messageContext, SHERLOCK_SEARCH_CHANNEL, payload);
+    }
+
     handleFlowStatusChange(event) {
         if (event.detail.status === 'FINISHED' || event.detail.status === 'FINISHED_SCREEN') {
             showToast(this, '成功', 'フローが正常に完了しました。', 'success');
