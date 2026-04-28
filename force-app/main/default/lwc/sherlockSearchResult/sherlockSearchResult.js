@@ -91,7 +91,7 @@ export default class SherlockSearchResult extends NavigationMixin(LightningEleme
     }
 
     get showBulkActionButton() {
-        return !!this.bulkFlowApiName;
+        return !!this.bulkFlowApiName && this.isListView;
     }
 
     get showExportButton() {

@@ -7,6 +7,7 @@ export default class SherlockSearchResultTable extends LightningElement {
     @api isLoadingMore = false;
     @api enableInfiniteLoading = false;
     @api draftValues = [];
+    @api selectedRows = [];
     @api showScrollIndicator = false;
     @api showDrilldown = false; // Added to control the footer button visibility
 
