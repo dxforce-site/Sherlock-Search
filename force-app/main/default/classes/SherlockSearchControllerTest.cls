@@ -3,10 +3,7 @@ private class SherlockSearchControllerTest {
 
     @TestSetup
     static void setup() {
-        SherlockTestFactory.createAccounts(5, true);
-        SherlockTestFactory.createConfig('inst1', '{"test": "json"}', true);
-        
-        // Create test user and assign permission set
+        // 1. Setup DML (User, PermissionSetAssignment)
         User testUser = SherlockTestFactory.createTestUser('sadmin', true);
         SherlockTestFactory.assignPermissionSet(testUser.Id, 'Sherlock_Search_Admin');
         
@@ -14,7 +11,10 @@ private class SherlockSearchControllerTest {
         SherlockTestFactory.grantStandardObjectPermissions(testUser.Id, 'Account');
         SherlockTestFactory.grantStandardObjectPermissions(testUser.Id, 'Contact');
         
+        // 2. Non-Setup DML (Data)
         System.runAs(testUser) {
+            SherlockTestFactory.createAccounts(5, true);
+            SherlockTestFactory.createConfig('inst1', '{"test": "json"}', true);
             SherlockTestFactory.createFavorite('inst1', 'My Favorite', '{"keyword": "test"}', true);
         }
     }
@@ -61,24 +61,21 @@ private class SherlockSearchControllerTest {
 
     @IsTest
     static void testGetChildRecords() {
-        User u = getTestUser();
-        System.runAs(u) {
-            Account acc = [SELECT Id FROM Account LIMIT 1];
-            SherlockSearchController.ChildSearchRequest req = new SherlockSearchController.ChildSearchRequest();
-            req.parentRecordId = acc.Id;
-            req.childObjectApiName = 'Contact';
-            req.childRelationshipField = 'AccountId';
-            req.childFields = new List<String>{'LastName'};
-            
-            // Add a contact
-            insert new Contact(LastName = 'Worker', AccountId = acc.Id);
+        Account acc = [SELECT Id FROM Account LIMIT 1];
+        SherlockSearchController.ChildSearchRequest req = new SherlockSearchController.ChildSearchRequest();
+        req.parentRecordId = acc.Id;
+        req.childObjectApiName = 'Contact';
+        req.childRelationshipField = 'AccountId';
+        req.childFields = new List<String>{'LastName'};
+        
+        // Add a contact
+        insert new Contact(LastName = 'Worker', AccountId = acc.Id);
 
-            Test.startTest();
-            List<SObject> results = SherlockSearchController.getChildRecords(req);
-            Test.stopTest();
-            
-            Assert.areEqual(1, results.size(), 'Should find one contact');
-        }
+        Test.startTest();
+        List<SObject> results = SherlockSearchController.getChildRecords(req);
+        Test.stopTest();
+        
+        Assert.areEqual(1, results.size(), 'Should find one contact');
     }
 
     @IsTest
@@ -238,6 +235,48 @@ private class SherlockSearchControllerTest {
                 Assert.fail('Delete should have failed');
             } catch (AuraHandledException e) {
                 Assert.isTrue(e.getMessage().contains('レコードの削除に失敗しました'), 'Error message mismatch');
+            }
+        }
+    }
+    
+    @IsTest
+    static void testExecuteSearch_NoPermission() {
+        // Create a user WITHOUT permission
+        User limitedUser = SherlockTestFactory.createTestUser('limited', true);
+        // Do NOT assign any permission sets
+        
+        System.runAs(limitedUser) {
+            SherlockQueryBuilder.SearchRequest req = new SherlockQueryBuilder.SearchRequest();
+            req.targetObject = 'Account';
+            req.selectFields = new List<String>{'Name'};
+            
+            try {
+                Test.startTest();
+                SherlockSearchController.executeSearch(req);
+                Test.stopTest();
+                Assert.fail('Should have failed due to no permission');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('アクセス権'), 'Error message should mention permissions: ' + e.getMessage());
+            }
+        }
+    }
+
+    @IsTest
+    static void testExecuteSearch_RelationshipError() {
+        User u = getTestUser();
+        System.runAs(u) {
+            SherlockQueryBuilder.SearchRequest req = new SherlockQueryBuilder.SearchRequest();
+            req.targetObject = 'Contact';
+            req.selectFields = new List<String>{'InvalidRel__r.Name'};
+            
+            try {
+                Test.startTest();
+                SherlockSearchController.executeSearch(req);
+                Test.stopTest();
+                Assert.fail('Should have failed due to invalid relationship');
+            } catch (AuraHandledException e) {
+                Assert.isTrue(e.getMessage().contains('権限が不足しているか'), 'Error message mismatch: ' + e.getMessage());
+                Assert.isTrue(e.getMessage().contains('InvalidRel__r'), 'Relationship name not found: ' + e.getMessage());
             }
         }
     }

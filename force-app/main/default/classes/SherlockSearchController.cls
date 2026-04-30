@@ -3,10 +3,13 @@ public with sharing class SherlockSearchController {
     @AuraEnabled
     public static List<SObject> executeSearch(SherlockQueryBuilder.SearchRequest request) {
         try {
-            // Build the query
+            // 0. Pre-validate object access
+            validateObjectAccess(request.targetObject);
+
+            // 1. Build the query
             SherlockQueryBuilder.QueryContext ctx = SherlockQueryBuilder.buildQuery(request);
             
-            // Execute using bind variables to avoid SOQL injection
+            // 2. Execute using bind variables to avoid SOQL injection
             // Using AccessLevel.USER_MODE along with WITH SECURITY_ENFORCED ensures tight FLS checks.
             List<SObject> results = Database.queryWithBinds(
                 ctx.queryString,
@@ -16,10 +19,40 @@ public with sharing class SherlockSearchController {
             
             return results;
         } catch (System.QueryException e) {
-            String msg = '検索論理式の指定に誤りがあります。条件番号や AND/OR の組み合わせを確認してください。詳細: ' + e.getMessage();
+            String msg;
+            String errorDetail = e.getMessage();
+            
+            // 権限不足またはメタデータ不整合に関連するエラーパターン
+            Boolean isSecurityError = errorDetail.containsIgnoreCase('Insufficient permissions') || 
+                                     errorDetail.containsIgnoreCase('inaccessible') || 
+                                     errorDetail.containsIgnoreCase('No such column') || 
+                                     errorDetail.containsIgnoreCase('No such relation') || 
+                                     errorDetail.containsIgnoreCase('Didn\'t understand relationship');
+
+            if (isSecurityError) {
+                String itemName = '';
+                try {
+                    // エラー文から項目名、オブジェクト名、またはリレーション名を抽出
+                    Pattern p = Pattern.compile('(?i)(?:relationship|relation|column|field|object) \'(.+?)\'');
+                    Matcher m = p.matcher(errorDetail);
+                    if (m.find()) {
+                        itemName = m.group(1);
+                    }
+                } catch (Exception ex) { /* Ignore regex error */ }
+                
+                msg = '検索を実行するための権限が不足しているか、設定（項目名・オブジェクト名）に誤りがあります。システム管理者に確認してください。';
+                if (String.isNotBlank(itemName)) {
+                    msg += '（対象: ' + itemName + '）';
+                }
+                msg += ' 詳細: ' + errorDetail;
+            } else {
+                msg = '検索論理式の指定に誤りがあります。条件番号や AND/OR の組み合わせを確認してください。詳細: ' + errorDetail;
+            }
             AuraHandledException ahe = new AuraHandledException(msg);
             ahe.setMessage(msg);
             throw ahe;
+        } catch (AuraHandledException e) {
+            throw e; // Pass through
         } catch (Exception e) {
             String msg = '検索の実行に失敗しました: ' + e.getMessage();
             AuraHandledException ahe = new AuraHandledException(msg);
@@ -41,6 +74,9 @@ public with sharing class SherlockSearchController {
             if (request.parentRecordId == null || String.isBlank(request.childObjectApiName) || String.isBlank(request.childRelationshipField)) {
                 return new List<SObject>();
             }
+
+            // 0. Pre-validate object access
+            validateObjectAccess(request.childObjectApiName);
 
             // 1. Select
             String selectClause = 'SELECT Id';
@@ -83,7 +119,8 @@ public with sharing class SherlockSearchController {
     @AuraEnabled
     public static String getConfig(String instanceId) {
         try {
-            return SherlockConfigService.getConfig(instanceId);
+            String rawConfig = SherlockConfigService.getConfig(instanceId);
+            return SherlockSecurityUtils.filterConfigForUser(rawConfig);
         } catch (Exception e) {
             String msg = '設定の取得に失敗しました: ' + e.getMessage();
             AuraHandledException ahe = new AuraHandledException(msg);
@@ -200,6 +237,31 @@ public with sharing class SherlockSearchController {
             return Site.getSiteId() != null;
         } catch (Exception e) {
             String msg = 'サイトコンテキストの判定に失敗しました: ' + e.getMessage();
+            AuraHandledException ahe = new AuraHandledException(msg);
+            ahe.setMessage(msg);
+            throw ahe;
+        }
+    }
+
+    private static void validateObjectAccess(String objectApiName) {
+        if (String.isBlank(objectApiName)) {
+            String msg = 'オブジェクト名が指定されていません。';
+            AuraHandledException ahe = new AuraHandledException(msg);
+            ahe.setMessage(msg);
+            throw ahe;
+        }
+        
+        SObjectType objType = Schema.getGlobalDescribe().get(objectApiName);
+        if (objType == null) {
+            String msg = 'オブジェクト「' + objectApiName + '」が見つかりません。API名の指定が正しいか、または現在のユーザーにアクセス権があるかを確認してください。';
+            AuraHandledException ahe = new AuraHandledException(msg);
+            ahe.setMessage(msg);
+            throw ahe;
+        }
+        
+        DescribeSObjectResult dr = objType.getDescribe();
+        if (!dr.isAccessible()) {
+            String msg = 'オブジェクト「' + dr.getLabel() + ' (' + dr.getName() + ')」へのアクセス権（参照権限）がありません。システム管理者に確認してください。';
             AuraHandledException ahe = new AuraHandledException(msg);
             ahe.setMessage(msg);
             throw ahe;

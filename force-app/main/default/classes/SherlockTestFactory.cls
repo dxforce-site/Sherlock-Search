@@ -36,7 +36,25 @@ public class SherlockTestFactory {
     }
 
     public static User createTestUser(String alias, Boolean isInsert) {
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User' LIMIT 1];
+        Id profileId;
+        try {
+            // Try to find a standard Salesforce profile that is NOT an admin
+            List<Profile> profiles = [SELECT Id FROM Profile 
+                         WHERE UserLicense.Name = 'Salesforce' 
+                         AND (NOT Name LIKE '%Admin%') 
+                         AND (NOT Name LIKE '%管理者%') 
+                         AND (NOT Name LIKE '%Integration%') 
+                         LIMIT 1];
+            if (!profiles.isEmpty()) {
+                profileId = profiles[0].Id;
+            } else {
+                // Fallback to any profile that works
+                profileId = [SELECT Id FROM Profile WHERE UserType = 'Standard' LIMIT 1].Id;
+            }
+        } catch (Exception e) {
+            profileId = UserInfo.getProfileId();
+        }
+        
         User u = new User(
             Alias = alias,
             Email = alias + '@test.com',
@@ -44,7 +62,7 @@ public class SherlockTestFactory {
             LastName = 'Testing',
             LanguageLocaleKey = 'en_US',
             LocaleSidKey = 'en_US',
-            ProfileId = p.Id,
+            ProfileId = profileId,
             TimeZoneSidKey = 'America/Los_Angeles',
             UserName = alias + '@test.sherlock.com'
         );
