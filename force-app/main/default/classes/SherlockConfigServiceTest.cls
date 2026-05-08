@@ -3,12 +3,14 @@ private class SherlockConfigServiceTest {
 
     @TestSetup
     static void setup() {
-        // Create config in system context
-        SherlockTestFactory.createConfig('inst1', '{"test": "json"}', true);
-        
-        // Create test user and assign permission set
+        // 1. Setup DML (User, PermissionSetAssignment)
         User testUser = SherlockTestFactory.createTestUser('sadmin', true);
         SherlockTestFactory.assignPermissionSet(testUser.Id, 'Sherlock_Search_Admin');
+        
+        // 2. Non-Setup DML (Data)
+        System.runAs(testUser) {
+            SherlockTestFactory.createConfig('inst1', '{"test": "json"}', true);
+        }
     }
 
     private static User getTestUser() {
